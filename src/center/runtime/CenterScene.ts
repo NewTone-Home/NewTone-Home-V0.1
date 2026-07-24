@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import type { CenterViewState, LandmarkDefinition, WorldDefinition, WorldLayer, WorldState } from '../../domain/contracts'
 import { clampExpansion } from '../../domain/world/worldResolver'
-import { ASSETS } from '../world/assets'
+import { resolveCenterAsset } from '../world/assets'
 import type { CenterBridge } from './CenterBridge'
 import { clampCameraScroll, projectWorldPoint } from '../camera/cameraMath'
 
@@ -13,7 +13,9 @@ interface SceneData {
 }
 
 const WORLD_WIDTH = 1200
-const WORLD_HEIGHT = 720
+const WORLD_HEIGHT = 800
+const GLOW_BASE_ALPHA = 0.14
+const GLOW_FOCUS_MS = 760
 
 export class CenterScene extends Phaser.Scene {
   private bridge!: CenterBridge
@@ -37,6 +39,11 @@ export class CenterScene extends Phaser.Scene {
     this.definition = data.definition
     this.worldState = data.initialWorld
     this.viewState = data.initialView
+  }
+
+  preload() {
+    const surfaceMapUrl = resolveCenterAsset(this.definition.surfaceMap)
+    if (surfaceMapUrl) this.load.image(this.definition.surfaceMap, surfaceMapUrl)
   }
 
   create() {
@@ -70,8 +77,18 @@ export class CenterScene extends Phaser.Scene {
   }
 
   private drawWorldLayer(layer: WorldLayer, container: Phaser.GameObjects.Container) {
-    const graphics = this.add.graphics()
     const isSurface = layer === 'surface'
+    const assetKey = isSurface ? this.definition.surfaceMap : this.definition.innerMap
+    if (isSurface && this.textures.exists(assetKey)) {
+      const map = this.add.image(0, 0, assetKey)
+        .setOrigin(0, 0)
+        .setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT)
+      container.add(map)
+      container.setData('assetKey', assetKey)
+      return
+    }
+
+    const graphics = this.add.graphics()
     graphics.fillStyle(isSurface ? 0xc8b993 : 0x273d3c, 1)
     graphics.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT)
     graphics.lineStyle(2, isSurface ? 0x766647 : 0x91a69a, 0.42)
@@ -102,7 +119,7 @@ export class CenterScene extends Phaser.Scene {
       graphics.strokeCircle(x, y, 2 + (i % 4))
     }
     container.add(graphics)
-    container.setData('assetKey', isSurface ? ASSETS.surfaceMap : ASSETS.innerMap)
+    container.setData('assetKey', assetKey)
   }
 
   private createLandmarks() {
@@ -116,26 +133,56 @@ export class CenterScene extends Phaser.Scene {
       glow.strokePoints(landmark.polygon.map((point) => new Phaser.Geom.Point(point.x, point.y)), true)
       const shape = this.add.polygon(0, 0, flatPoints, 0xffffff, 0.001)
       shape.setOrigin(0, 0)
+      // 轮廓默认极弱(可辨认但不喧宾夺主),悬停约 760ms 内逐渐发光 —— 对应 V0.0
+      // "地标不常驻卡片 · 悬停后轮廓逐渐发光"。
+      glow.setAlpha(GLOW_BASE_ALPHA)
       container.add([glow, shape])
       this.landmarkViews.set(landmark.id, { shape, glow })
     }
   }
 
+  // 悬停驱动的轮廓发光:命中的地标在 ~760ms 内渐亮并转入轻微呼吸,其余回落到基线。
+  private setLandmarkGlow(focusId: string | null) {
+    for (const [id, view] of this.landmarkViews) {
+      const unlocked = this.worldState.unlockedLandmarkIds.includes(id)
+      this.tweens.killTweensOf(view.glow)
+      if (focusId === id && unlocked) {
+        this.tweens.add({
+          targets: view.glow,
+          alpha: { from: view.glow.alpha, to: 1 },
+          duration: GLOW_FOCUS_MS,
+          ease: 'Sine.Out',
+          onComplete: () => {
+            this.tweens.add({
+              targets: view.glow,
+              alpha: { from: 1, to: 0.7 },
+              duration: 1400,
+              yoyo: true,
+              repeat: -1,
+              ease: 'Sine.InOut',
+            })
+          },
+        })
+      } else {
+        this.tweens.add({
+          targets: view.glow,
+          alpha: { from: view.glow.alpha, to: GLOW_BASE_ALPHA },
+          duration: 240,
+          ease: 'Sine.Out',
+        })
+      }
+    }
+  }
+
   private applyWorldState() {
+    // 只做解锁可见性;发光交给 setLandmarkGlow 的悬停驱动(不再全体常亮脉冲)。
     for (const [id, view] of this.landmarkViews) {
       const unlocked = this.worldState.unlockedLandmarkIds.includes(id)
       view.shape.setVisible(unlocked)
       view.glow.setVisible(unlocked)
-      if (unlocked && !view.glow.getData('isPulsing')) {
-        view.glow.setData('isPulsing', true)
-        this.tweens.add({
-          targets: view.glow,
-          alpha: { from: 0.55, to: 1 },
-          duration: 1600,
-          yoyo: true,
-          repeat: -1,
-          ease: 'Sine.InOut',
-        })
+      if (unlocked && id !== this.hoveredLandmarkId) {
+        this.tweens.killTweensOf(view.glow)
+        view.glow.setAlpha(GLOW_BASE_ALPHA)
       }
     }
   }
@@ -158,6 +205,11 @@ export class CenterScene extends Phaser.Scene {
       if (pointer.rightButtonDown()) {
         this.dragging = true
         this.lastPointer.set(pointer.x, pointer.y)
+        if (this.hoveredLandmarkId !== null) {
+          this.hoveredLandmarkId = null
+          this.setLandmarkGlow(null)
+          this.bridge.emit({ type: 'landmark/hover', landmarkId: null })
+        }
         return
       }
       const landmark = this.findLandmarkAt(pointer)
@@ -169,6 +221,7 @@ export class CenterScene extends Phaser.Scene {
         const landmarkId = this.findLandmarkAt(pointer)?.id ?? null
         if (landmarkId !== this.hoveredLandmarkId) {
           this.hoveredLandmarkId = landmarkId
+          this.setLandmarkGlow(landmarkId)
           this.bridge.emit({ type: 'landmark/hover', landmarkId })
         }
         return
@@ -207,7 +260,12 @@ export class CenterScene extends Phaser.Scene {
     const camera = this.cameras.main
     const zoom = Math.max(camera.width / WORLD_WIDTH, camera.height / WORLD_HEIGHT)
     camera.setZoom(zoom)
-    camera.centerOn(WORLD_WIDTH / 2, WORLD_HEIGHT / 2)
+    // 显式按 zoom 折算居中:此 Phaser 构建的 centerOn 未按 zoom 折算,会把世界推出屏外
+    // (旧"进入 Center 全黑"的根因)。手动把世界中心对到视口中心。
+    camera.setScroll(
+      WORLD_WIDTH / 2 - (camera.width / 2) / zoom,
+      WORLD_HEIGHT / 2 - (camera.height / 2) / zoom,
+    )
     this.emitCamera()
   }
 

@@ -1,0 +1,72 @@
+/* Reader → Center 返回仪式控件。铅笔批注质感的胶囊,进度沿轨道蓄满后完成。 */
+.reader-return-control {
+  position: absolute;
+  z-index: 3;
+  right: 2rem;
+  bottom: 1.7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  border: 0;
+  background: rgba(239, 232, 217, 0.72);
+  padding: 0.7rem 1.05rem 0.8rem;
+  border-radius: 1.6rem;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  box-shadow: 0 8px 30px var(--nt-shadow);
+  color: var(--nt-ink);
+  font: 0.92rem var(--nt-serif);
+  letter-spacing: 0.04em;
+  transition: color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.reader-return-control:hover {
+  color: var(--nt-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 36px var(--nt-shadow);
+}
+
+.reader-return-control > span:first-child {
+  white-space: nowrap;
+}
+
+.reader-return-track {
+  position: relative;
+  width: 100%;
+  min-width: 5.4rem;
+  height: 2px;
+  background: rgba(37, 35, 31, 0.18);
+  overflow: hidden;
+}
+
+.reader-return-track > span {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: scaleX(var(--return-progress, 0));
+  background: linear-gradient(90deg, var(--nt-accent), #c08a55);
+  transition: opacity 0.2s ease;
+}
+
+.reader-return-control.is-completing {
+  color: var(--nt-accent);
+}
+
+.reader-return-control.is-completing .reader-return-track > span {
+  opacity: 0.6;
+}
+
+@media (max-width: 800px) {
+  .reader-return-control {
+    right: 1rem;
+    bottom: 5.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-return-control,
+  .reader-return-track > span {
+    transition-duration: 0.01ms;
+  }
+}

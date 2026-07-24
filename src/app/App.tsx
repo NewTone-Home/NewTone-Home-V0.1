@@ -1,7 +1,6 @@
 import { CenterPage } from '../center/CenterPage'
 import { ImportPage } from '../import/ImportPage'
-import { Landing } from '../landing/Landing'
-import { Reader } from '../reader/Reader'
+import { EntryFlow } from '../landing/EntryFlow'
 import { useAppStore } from '../stores/appStore'
 
 export function App() {
@@ -23,7 +22,7 @@ export function App() {
   }
 
   if (route === 'import') return <ImportPage />
-  if (route === 'reader') return <Reader />
   if (route === 'center') return <CenterPage />
-  return <Landing />
+  // landing 与 reader 由入口流统一编排,使仪式覆盖层能跨越路由切换持续存在
+  return <EntryFlow />
 }

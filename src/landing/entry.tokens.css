@@ -1,0 +1,65 @@
+/* 入口切片所需的 V0.0 设计 token 子集(移植自 tokens.css / visualTokens.css)。
+   命名与 V0.1 的 --nt-* 体系不冲突,可并存;仅供 Landing / ReadingTransition 使用。 */
+:root {
+  /* Paper */
+  --paper-base: #f4efe6;
+  --paper-warm: #f2ede4;
+
+  /* Ink */
+  --ink-dark: #3a322a;
+  --ink-medium: #5a4d40;
+  --ink-muted: #8a7a6b;
+  --line-faint: #baada0;
+
+  /* Accent */
+  --accent-amber: #c49450;
+  --accent-amber-soft: #d4a860;
+
+  /* Animation */
+  --pulse-duration: 1.8s;
+  --pulse-easing: ease-in-out;
+  --prompt-opacity-min: 0.38;
+  --prompt-opacity-max: 0.9;
+
+  /* Stroke */
+  --stroke-main: 1.2;
+  --stroke-faint: 0.7;
+  --opacity-stroke-faint: 0.15;
+  --opacity-duplicate: 0.12;
+
+  /* Typography (入口手写标题 + 字号阶) */
+  --font-title-handwritten: "Segoe Script", "Bradley Hand", "Comic Sans MS", cursive;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 15px;
+
+  /* Spacing (入口用到的几档) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+}
+
+.paper-surface {
+  background-color: var(--paper-base);
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 1px,
+      rgba(0, 0, 0, 0.004) 1px,
+      rgba(0, 0, 0, 0.004) 1.5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 2.5px,
+      rgba(0, 0, 0, 0.003) 2.5px,
+      rgba(0, 0, 0, 0.003) 2.8px
+    ),
+    radial-gradient(
+      ellipse at 50% 50%,
+      transparent 40%,
+      rgba(220, 210, 195, 0.12) 100%
+    );
+  color: var(--ink-dark);
+}

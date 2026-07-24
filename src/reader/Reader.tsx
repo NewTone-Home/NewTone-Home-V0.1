@@ -7,15 +7,22 @@ import { useAppStore } from '../stores/appStore'
 import { useCenterStore } from '../stores/centerStore'
 import { useReaderStore } from '../stores/readerStore'
 import { ReaderBlockView } from './ReaderBlockView'
+import { ReaderReturnControl } from './ReaderReturnControl'
 import { ReaderSettings } from './ReaderSettings'
 
-export function Reader() {
+interface ReaderProps {
+  // 入口仪式的握手:首屏内容出现时触发一次,通知 useReadingEntry 可以淡出过渡层。
+  onReaderReady?: () => void
+}
+
+export function Reader({ onReaderReady }: ReaderProps = {}) {
   const { currentStoryId, setRoute } = useAppStore()
   const { document, position, preferences, loading, setDocument, setPosition, setPreferences, setLoading } = useReaderStore()
   const { worldState, viewState, setWorldState } = useCenterStore()
   const scrollRoot = useRef<HTMLElement>(null)
   const restorePending = useRef(true)
   const saveTimer = useRef<number | null>(null)
+  const readyFiredRef = useRef(false)
 
   const loadChapter = useCallback(async (language: LanguageCode) => {
     if (!currentStoryId) return
@@ -106,6 +113,13 @@ export function Reader() {
     }
   }, [persist])
 
+  useEffect(() => {
+    if (!document || loading || readyFiredRef.current) return
+    readyFiredRef.current = true
+    const raf = requestAnimationFrame(() => onReaderReady?.())
+    return () => cancelAnimationFrame(raf)
+  }, [document, loading, onReaderReady])
+
   const enterCenter = async () => {
     await persist()
     setRoute('center')
@@ -138,10 +152,7 @@ export function Reader() {
           </footer>
         </div>
       </article>
-      <button className="center-entry" type="button" onClick={() => void enterCenter()} aria-label="进入 Center">
-        <span className="center-entry-mark">◎</span>
-        <span>世界中枢</span>
-      </button>
+      <ReaderReturnControl onComplete={() => void enterCenter()} />
     </main>
   )
 }
