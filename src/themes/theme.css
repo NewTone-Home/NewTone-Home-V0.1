@@ -1,0 +1,17 @@
+:root {
+  --nt-paper: #eee5d2;
+  --nt-paper-deep: #d4c7ae;
+  --nt-ink: #25231f;
+  --nt-ink-muted: #716958;
+  --nt-line: rgba(37, 35, 31, 0.24);
+  --nt-accent: #8b5837;
+  --nt-moss: #43564d;
+  --nt-panel: rgba(238, 229, 210, 0.94);
+  --nt-shadow: rgba(26, 25, 22, 0.18);
+  --nt-serif: "Iowan Old Style", "Baskerville", "Noto Serif SC", "Songti SC", serif;
+  --nt-sans: "Avenir Next", "Segoe UI", "PingFang SC", sans-serif;
+  color: var(--nt-ink);
+  font-family: var(--nt-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}

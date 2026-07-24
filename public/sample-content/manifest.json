@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "ghost-market",
+  "version": "1.0.0",
+  "defaultLanguage": "zh-CN",
+  "languages": ["zh-CN", "en"],
+  "title": {
+    "zh-CN": "鬼市",
+    "en": "Ghost Market"
+  },
+  "chapters": [
+    {
+      "id": "chapter-001",
+      "order": 1,
+      "title": {
+        "zh-CN": "第一章：山谷来信",
+        "en": "Chapter One: A Letter from the Valley"
+      },
+      "sources": {
+        "zh-CN": "chapters/chapter-001.zh-CN.md",
+        "en": "chapters/chapter-001.en.md"
+      }
+    }
+  ],
+  "world": "world/world.json"
+}

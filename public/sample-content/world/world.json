@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "surfaceMap": "map.surface.default",
+  "innerMap": "map.inner.default",
+  "landmarks": [
+    {
+      "id": "surface-station",
+      "layer": "surface",
+      "title": { "zh-CN": "旧车站", "en": "Old Station" },
+      "annotation": { "zh-CN": "停摆的钟仍在记录无人抵达的班次。", "en": "The stopped clock still records trains that never arrive." },
+      "polygon": [{ "x": 300, "y": 270 }, { "x": 390, "y": 250 }, { "x": 420, "y": 320 }, { "x": 325, "y": 342 }],
+      "anchor": { "x": 365, "y": 255 },
+      "contentTarget": { "type": "chapter", "id": "chapter-001" }
+    },
+    {
+      "id": "surface-council",
+      "layer": "surface",
+      "title": { "zh-CN": "山谷议厅", "en": "Valley Council" },
+      "annotation": { "zh-CN": "窗后留着一圈未熄的暖光。", "en": "A ring of warm light remains behind the windows." },
+      "polygon": [{ "x": 790, "y": 320 }, { "x": 890, "y": 300 }, { "x": 925, "y": 380 }, { "x": 820, "y": 405 }],
+      "anchor": { "x": 860, "y": 306 },
+      "requiredProgressKey": "market-awake",
+      "contentTarget": { "type": "note", "id": "council-note" }
+    },
+    {
+      "id": "inner-gate",
+      "layer": "inner",
+      "title": { "zh-CN": "无影之门", "en": "The Shadowless Gate" },
+      "annotation": { "zh-CN": "门扉只在两层世界错开的瞬间出现。", "en": "The gate appears only when the two worlds slip apart." },
+      "polygon": [{ "x": 520, "y": 360 }, { "x": 610, "y": 330 }, { "x": 650, "y": 430 }, { "x": 550, "y": 455 }],
+      "anchor": { "x": 585, "y": 336 },
+      "requiredProgressKey": "market-awake",
+      "contentTarget": { "type": "note", "id": "gate-note" }
+    },
+    {
+      "id": "inner-river",
+      "layer": "inner",
+      "title": { "zh-CN": "回声河", "en": "Echo River" },
+      "annotation": { "zh-CN": "水面把已经说过的话送回岸边。", "en": "The water returns every spoken word to shore." },
+      "polygon": [{ "x": 180, "y": 510 }, { "x": 310, "y": 465 }, { "x": 355, "y": 535 }, { "x": 220, "y": 585 }],
+      "anchor": { "x": 280, "y": 475 },
+      "requiredProgressKey": "market-awake",
+      "contentTarget": { "type": "note", "id": "river-note" }
+    },
+    {
+      "id": "inner-market",
+      "layer": "inner",
+      "title": { "zh-CN": "鬼市", "en": "Ghost Market" },
+      "annotation": { "zh-CN": "摊位沿着不存在于地图上的街道延伸。", "en": "Stalls line a street absent from every map." },
+      "polygon": [{ "x": 805, "y": 520 }, { "x": 950, "y": 480 }, { "x": 1010, "y": 590 }, { "x": 845, "y": 625 }],
+      "anchor": { "x": 910, "y": 485 },
+      "requiredProgressKey": "market-awake",
+      "contentTarget": { "type": "note", "id": "market-note" }
+    }
+  ],
+  "progressStates": [
+    {
+      "key": "opening",
+      "from": { "chapterId": "chapter-001", "blockId": "ch1-opening" },
+      "surfaceVariant": "surface-dawn",
+      "innerVariant": "inner-dormant",
+      "unlockedLandmarks": ["surface-station"]
+    },
+    {
+      "key": "market-awake",
+      "from": { "chapterId": "chapter-001", "blockId": "ch1-footsteps" },
+      "surfaceVariant": "surface-night",
+      "innerVariant": "inner-awake",
+      "unlockedLandmarks": ["surface-station", "surface-council", "inner-gate", "inner-river", "inner-market"]
+    }
+  ]
+}
