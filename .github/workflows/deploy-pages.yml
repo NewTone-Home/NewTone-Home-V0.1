@@ -31,6 +31,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build bundled sample package
+        run: npm run build:sample
+
       - name: Build
         run: npm run build
 
