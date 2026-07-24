@@ -21,6 +21,16 @@ export function ReaderStage({ blocks, initialBlockId, onPositionChange, onExitTo
   const [index, setIndex] = useState(initialIndex)
   const lockUntil = useRef(0)
   const touchStartY = useRef<number | null>(null)
+  const onPositionChangeRef = useRef(onPositionChange)
+  const onExitTopRef = useRef(onExitTop)
+
+  useEffect(() => {
+    onPositionChangeRef.current = onPositionChange
+  }, [onPositionChange])
+
+  useEffect(() => {
+    onExitTopRef.current = onExitTop
+  }, [onExitTop])
 
   useEffect(() => {
     const restored = beats.findIndex((block) => block.id === initialBlockId)
@@ -29,8 +39,8 @@ export function ReaderStage({ blocks, initialBlockId, onPositionChange, onExitTo
 
   useEffect(() => {
     const current = beats[index]
-    if (current) onPositionChange(current, index, beats.length)
-  }, [beats, index, onPositionChange])
+    if (current) onPositionChangeRef.current(current, index, beats.length)
+  }, [beats, index])
 
   const advance = (direction: 1 | -1) => {
     const now = Date.now()
@@ -39,7 +49,7 @@ export function ReaderStage({ blocks, initialBlockId, onPositionChange, onExitTo
 
     setIndex((current) => {
       if (direction < 0 && current === 0) {
-        onExitTop()
+        onExitTopRef.current()
         return current
       }
       return Math.max(0, Math.min(beats.length - 1, current + direction))
