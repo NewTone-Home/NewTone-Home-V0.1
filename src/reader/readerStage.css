@@ -1,0 +1,162 @@
+.reader.reader--stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #f4f0e7;
+  color: #201d1a;
+}
+
+.reader-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(255,255,255,.82), rgba(244,240,231,.96) 58%, rgba(229,221,207,.98) 100%);
+}
+
+.reader-stage__paper-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .2;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(60,50,38,.025) 0, rgba(60,50,38,.025) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(90deg, rgba(60,50,38,.016) 0, rgba(60,50,38,.016) 1px, transparent 1px, transparent 5px);
+  mix-blend-mode: multiply;
+}
+
+.reader-stage__beats {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(64px, 10vh, 120px) clamp(28px, 9vw, 150px);
+}
+
+.reader-beat {
+  position: absolute;
+  width: min(760px, calc(100vw - 56px));
+  text-align: left;
+  transform-origin: center;
+  transition:
+    transform 420ms cubic-bezier(.22,.72,.23,1),
+    opacity 360ms ease,
+    filter 360ms ease;
+  will-change: transform, opacity, filter;
+}
+
+.reader-beat > * {
+  margin: 0;
+  font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+  font-size: calc(clamp(19px, 2.15vw, 30px) * var(--reader-scale, 1));
+  line-height: var(--reader-leading, 1.85);
+  letter-spacing: .035em;
+  font-weight: 400;
+}
+
+.reader-beat blockquote {
+  padding-left: 1.25em;
+  border-left: 1px solid rgba(30,26,22,.36);
+  font-style: normal;
+}
+
+.reader-beat h1,
+.reader-beat h2,
+.reader-beat h3 {
+  text-align: center;
+  letter-spacing: .12em;
+  font-weight: 500;
+}
+
+.reader-beat hr {
+  width: 96px;
+  border: 0;
+  border-top: 1px solid rgba(32,29,26,.35);
+}
+
+.reader-beat--current {
+  z-index: 3;
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.reader-beat--previous {
+  z-index: 2;
+  opacity: .22;
+  filter: blur(1.2px);
+  transform: translate3d(0, -25vh, 0) scale(.965);
+}
+
+.reader-beat--next {
+  z-index: 2;
+  opacity: .22;
+  filter: blur(1.2px);
+  transform: translate3d(0, 25vh, 0) scale(.965);
+}
+
+.reader-beat--distance-2.reader-beat--previous {
+  opacity: .06;
+  filter: blur(2.5px);
+  transform: translate3d(0, -42vh, 0) scale(.93);
+}
+
+.reader-beat--distance-2.reader-beat--next {
+  opacity: .06;
+  filter: blur(2.5px);
+  transform: translate3d(0, 42vh, 0) scale(.93);
+}
+
+.reader-stage__hint {
+  position: absolute;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: rgba(32,29,26,.38);
+  white-space: nowrap;
+}
+
+.reader-stage__hint i {
+  display: block;
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+}
+
+.reader-stage--empty {
+  display: grid;
+  place-items: center;
+}
+
+@media (max-width: 720px) {
+  .reader-stage__beats {
+    padding-inline: 25px;
+  }
+
+  .reader-beat {
+    width: calc(100vw - 50px);
+  }
+
+  .reader-beat > * {
+    font-size: calc(clamp(18px, 5.2vw, 24px) * var(--reader-scale, 1));
+    line-height: max(1.7, var(--reader-leading, 1.85));
+  }
+
+  .reader-stage__hint {
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-beat {
+    transition-duration: 1ms;
+  }
+}
