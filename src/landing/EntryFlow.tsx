@@ -1,12 +1,11 @@
 // 协调 Landing ↔ Reader 的入口流(移植自 V0.0 App.jsx 的对应部分,去掉 Center)。
 // 由 useReadingEntry 状态机驱动:Landing 触发 → 仪式覆盖层 → Reader 就绪握手 → 覆盖层淡出。
-import { useCallback } from 'react'
 import { Reader } from '../reader/Reader'
 import { useAppStore } from '../stores/appStore'
 import { useReaderStore } from '../stores/readerStore'
 import { Landing } from './Landing'
 import { ReadingTransition } from './ReadingTransition'
-import { READING_ENTRY_TIMINGS, useReadingEntry, type EntryIntent } from './entry/useReadingEntry'
+import { READING_ENTRY_TIMINGS, useReadingEntry } from './entry/useReadingEntry'
 
 export function EntryFlow() {
   const route = useAppStore((s) => s.route)
@@ -15,11 +14,6 @@ export function EntryFlow() {
   const immersive = useReaderStore((s) => s.preferences.immersiveVisualsEnabled)
 
   const entry = useReadingEntry()
-
-  const handleEnter = useCallback((intent: EntryIntent) => {
-    if (entry.isActive) return
-    entry.start(intent)
-  }, [entry])
 
   const landingLeaving =
     entry.phase === 'landing-leaving' || entry.phase === 'landing-empty-hold'
@@ -41,7 +35,7 @@ export function EntryFlow() {
         <Reader onReaderReady={entry.isActive ? entry.handleReaderReady : undefined} />
       )}
       {showLanding && (
-        <Landing onEnter={handleEnter} leaving={landingLeaving} leavingMs={landingLeaveMs} />
+        <Landing onEnter={entry.start} leaving={landingLeaving} leavingMs={landingLeaveMs} />
       )}
       <ReadingTransition
         phase={entry.phase}
