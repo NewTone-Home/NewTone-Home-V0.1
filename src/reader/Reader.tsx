@@ -25,14 +25,17 @@ export function Reader({ onReaderReady }: ReaderProps = {}) {
     setLoading(true)
     try {
       const story = await contentPort.getStory(currentStoryId)
-      const chapterId = position?.storyId === currentStoryId ? position.chapterId : story.chapters[0].id
+      const savedPosition = useReaderStore.getState().position
+      const chapterId = savedPosition?.storyId === currentStoryId
+        ? savedPosition.chapterId
+        : story.chapters[0].id
       const next = await contentPort.getChapter(currentStoryId, chapterId, language)
       setDocument(next)
       setPreferences({ language })
     } finally {
       setLoading(false)
     }
-  }, [currentStoryId, position?.chapterId, position?.storyId, setDocument, setLoading, setPreferences])
+  }, [currentStoryId, setDocument, setLoading, setPreferences])
 
   useEffect(() => { void loadChapter(preferences.language) }, [loadChapter, preferences.language])
 
